@@ -120,4 +120,22 @@ with kpi_col2:
     st.markdown("""
     <div class="circle-container">
         <div class="circle-card">
-            <span class="circle-emoji">🛡
+            <span class="circle-emoji">🛡️</span>
+            <span class="circle-text">2. 지속가능성 및<br>회복탄력성 확보</span>
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
+
+with kpi_col3:
+    st.markdown("""
+    <div class="circle-container">
+        <div class="circle-card">
+            <span class="circle-emoji">🤝</span>
+            <span class="circle-text">3. 신뢰 및<br>평판 자본 축적</span>
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
+
+st.markdown("<br><br>", unsafe_allow_html=True)
+st.markdown("---")
+st.caption("Data Source: 중소벤처기업부 창업기업동향 통계 (2016-2025) | 본 대시보드는 경영·회계 및 데이터 분석 전공 탐구 목적으로 제작되었습니다.")
