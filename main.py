@@ -15,9 +15,9 @@ st.markdown("""
         background: linear-gradient(135deg, #f5f7fa 0%, #e4e8f0 100%);
     }
     
-    /* 타이틀 폰트 및 색상 강조 (딥 네이비) */
+    /* [색상 수정] 타이틀 폰트 색상을 블랙에 가까운 묵직한 다크 네이비로 변경 */
     h1 {
-        color: #1e3a8a !important;
+        color: #0f172a !important;
         font-weight: 800 !important;
     }
     
@@ -34,10 +34,10 @@ st.markdown("""
         border-radius: 12px;
         box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
         margin-bottom: 35px;
-        border-left: 5px solid #2563eb;
+        border-left: 5px solid #1e3a8a; /* 테두리도 묵직한 네이비로 매칭 */
     }
     
-    /* [핵심 핵심!] 가치관 표현을 위한 세련된 원형 컨테이너 스타일 */
+    /* 가치관 표현을 위한 세련된 원형 컨테이너 스타일 */
     .circle-container {
         display: block;
         margin: 0 auto;
@@ -48,14 +48,13 @@ st.markdown("""
         background: #ffffff;
         width: 220px;
         height: 220px;
-        border-radius: 50%; /* 완벽한 원형 생성 */
+        border-radius: 50%;
         display: table-cell;
         vertical-align: middle;
         text-align: center;
         margin: 0 auto;
-        box-shadow: 0 10px 15px -3px rgba(30, 58, 138, 0.1), 0 4px 6px -2px rgba(30, 58, 138, 0.05);
-        border: 4px solid #1e3a8a; /* 원형 테두리 포인트 */
-        transition: transform 0.2s;
+        box-shadow: 0 10px 15px -3px rgba(15, 23, 42, 0.08), 0 4px 6px -2px rgba(15, 23, 42, 0.04);
+        border: 4px solid #0f172a; /* 원형 테두리도 바뀐 메인 색상과 통일 */
     }
     
     /* 원형 내 이모지 스타일 */
@@ -67,7 +66,7 @@ st.markdown("""
     
     /* 원형 내 글자 스타일 */
     .circle-text {
-        color: #1e3a8a;
+        color: #0f172a;
         font-size: 15px;
         font-weight: 700;
         line-height: 1.4;
@@ -77,15 +76,15 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-# 3. 메인 대문 제목 및 부제목
+# 3. 메인 대문 제목 및 [수정] 이해하기 쉬운 부제목
 st.title("📉 Shock & Resilience")
-st.subheader("거시경제 충격에 따른 산업별 창업 저항력 및 자본 구조 분석 대시보드")
+st.subheader("위기에 강한 업종은 어디일까? 10개년 데이터로 보는 경제 충격과 창업 생존 지도")
 st.markdown("---")
 
 # 4. 인트로 섹션 (정돈된 프로젝트 기획 배경 카드)
 st.markdown("""
 <div class="intro-card">
-    <h3 style="margin-top:0; color:#2563eb;">🎯 프로젝트 기획 배경</h3>
+    <h3 style="margin-top:0; color:#1e3a8a;">🎯 프로젝트 기획 배경</h3>
     <p style="color:#475569; line-height:1.7; margin-bottom:10px;">
         경영·회계학적으로 기업의 생존과 성장은 단순히 유행을 따르는 것이 아니라, 
         <b>대외적인 리스크 요인을 얼마나 정밀하게 예측하고 방어하느냐</b>에 따라 결정됩니다.
@@ -94,7 +93,7 @@ st.markdown("""
         본 대시보드는 <b>지난 10개년(2016-2025) 중소벤처기업부의 데이터</b>를 기반으로, 우리 경제가 마주했던 대표적인 두 번의 대격변기인 
         <b>2020년 코로나19 팬데믹 쇼크(대면 제한)</b>와 <b>2021년 초저금리 유동성 과열기(자산 시장 급변)</b>를 집중 추적합니다.
     </p>
-    <p style="color:#1e3a8a; font-weight:600; margin-bottom:0; margin-top:15px;">
+    <p style="color:#0f172a; font-weight:600; margin-bottom:0; margin-top:15px;">
         💡 왼쪽 사이드바 메뉴의 각 Page로 이동하여 외부 충격에 가장 단단한 '재무적 안전지대'를 직접 탐색해 보세요.
     </p>
 </div>
@@ -102,10 +101,9 @@ st.markdown("""
 
 st.markdown("---")
 
-# 5. 핵심 학술적 가치 (설명을 없애고 깔끔한 3구 원형 배지 레이아웃 적용)
+# 5. 핵심 학술적 가치 (3구 원형 배지 레이아웃)
 st.markdown("<h3 style='text-align: center; margin-bottom: 30px;'>🏢 경영·회계학적 리스크 관리 핵심 가치</h3>", unsafe_allow_html=True)
 
-# 화면 분할을 위해 빈 컬럼을 좌우에 두어 원형 카드들을 가운데로 집중시킵니다.
 empty_left, kpi_col1, kpi_col2, kpi_col3, empty_right = st.columns([1, 2, 2, 2, 1])
 
 with kpi_col1:
@@ -122,22 +120,4 @@ with kpi_col2:
     st.markdown("""
     <div class="circle-container">
         <div class="circle-card">
-            <span class="circle-emoji">🛡️</span>
-            <span class="circle-text">2. 지속가능성 및<br>회복탄력성 확보</span>
-        </div>
-    </div>
-    """, unsafe_allow_html=True)
-
-with kpi_col3:
-    st.markdown("""
-    <div class="circle-container">
-        <div class="circle-card">
-            <span class="circle-emoji">🤝</span>
-            <span class="circle-text">3. 신뢰 및<br>평판 자본 축적</span>
-        </div>
-    </div>
-    """, unsafe_allow_html=True)
-
-st.markdown("<br><br>", unsafe_allow_html=True)
-st.markdown("---")
-st.caption("Data Source: 중소벤처기업부 창업기업동향 통계 (2016-2025) | 본 대시보드는 경영·회계 및 데이터 분석 전공 탐구 목적으로 제작되었습니다.")
+            <span class="circle-emoji">🛡
