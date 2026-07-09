@@ -111,4 +111,4 @@ st.plotly_chart(fig1, use_container_width=True, config={
 })
 
 st.markdown("---")
-st.caption("Data Source: 중소벤처기업부 창업기업동향 통계 | 본 화면은 다중 페이지 시스템 중 Page 1에 해당합니다.")
+st.caption("Data Source: 업종별 창업기업수 통계 (2016-2025) | Page 1
