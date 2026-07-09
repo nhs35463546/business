@@ -17,7 +17,7 @@ st.markdown("""
     
     /* [색상 수정] 타이틀 폰트 색상을 블랙에 가까운 묵직한 다크 네이비로 변경 */
     h1 {
-        color: #000013 !important;
+        color: #000053 !important;
         font-weight: 800 !important;
     }
     
