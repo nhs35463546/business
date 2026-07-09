@@ -7,7 +7,7 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# 2. 고급스러운 금융/경영 대시보드 테마 CSS 주입 (그라데이션 및 카드 UI)
+# 2. 고급스러운 금융/경영 대시보드 테마 및 원형(Circle) 디자인 CSS 주입
 st.markdown("""
     <style>
     /* 메인 화면 전체 배경을 금융 분석 플랫폼 느낌의 연한 블루그레이 톤으로 변경 */
@@ -33,18 +33,46 @@ st.markdown("""
         padding: 25px;
         border-radius: 12px;
         box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-        margin-bottom: 25px;
+        margin-bottom: 35px;
         border-left: 5px solid #2563eb;
     }
     
-    /* 하단 3대 핵심 가치관 전용 상단 라인 포인트 카드 스타일 */
-    .value-card {
-        background-color: #ffffff;
-        padding: 20px;
-        border-radius: 10px;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-        border-top: 4px solid #1e3a8a;
-        height: 100%;
+    /* [핵심 핵심!] 가치관 표현을 위한 세련된 원형 컨테이너 스타일 */
+    .circle-container {
+        display: block;
+        margin: 0 auto;
+        text-align: center;
+    }
+    
+    .circle-card {
+        background: #ffffff;
+        width: 220px;
+        height: 220px;
+        border-radius: 50%; /* 완벽한 원형 생성 */
+        display: table-cell;
+        vertical-align: middle;
+        text-align: center;
+        margin: 0 auto;
+        box-shadow: 0 10px 15px -3px rgba(30, 58, 138, 0.1), 0 4px 6px -2px rgba(30, 58, 138, 0.05);
+        border: 4px solid #1e3a8a; /* 원형 테두리 포인트 */
+        transition: transform 0.2s;
+    }
+    
+    /* 원형 내 이모지 스타일 */
+    .circle-emoji {
+        font-size: 40px;
+        margin-bottom: 10px;
+        display: block;
+    }
+    
+    /* 원형 내 글자 스타일 */
+    .circle-text {
+        color: #1e3a8a;
+        font-size: 15px;
+        font-weight: 700;
+        line-height: 1.4;
+        padding: 0 15px;
+        display: block;
     }
     </style>
 """, unsafe_allow_html=True)
@@ -74,40 +102,42 @@ st.markdown("""
 
 st.markdown("---")
 
-# 5. 핵심 학술적 가치 (새로운 3대 핵심 가치 매칭 및 간결화)
-st.markdown("### 🏢 경영·회계학적 리스크 관리 핵심 가치")
+# 5. 핵심 학술적 가치 (설명을 없애고 깔끔한 3구 원형 배지 레이아웃 적용)
+st.markdown("<h3 style='text-align: center; margin-bottom: 30px;'>🏢 경영·회계학적 리스크 관리 핵심 가치</h3>", unsafe_allow_html=True)
 
-kpi_col1, kpi_col2, kpi_col3 = st.columns(3)
+# 화면 분할을 위해 빈 컬럼을 좌우에 두어 원형 카드들을 가운데로 집중시킵니다.
+empty_left, kpi_col1, kpi_col2, kpi_col3, empty_right = st.columns([1, 2, 2, 2, 1])
 
 with kpi_col1:
     st.markdown("""
-    <div class="value-card">
-        <h4 style="color:#1e3a8a; margin-top:0;">📊 1. 기업 가치 및 수익성 보호</h4>
-        <p style="color:#475569; font-size:14px; line-height:1.6; margin-bottom:0;">
-            거시경제 충격 시나리오 속에서 업종별 창업 추이를 예측함으로써 비즈니스의 불확실성을 최소화하고, 재무적 손실을 선제적으로 방어하여 기업 가치를 보호합니다.
-        </p>
+    <div class="circle-container">
+        <div class="circle-card">
+            <span class="circle-emoji">📊</span>
+            <span class="circle-text">1. 기업 가치 및<br>수익성 보호</span>
+        </div>
     </div>
     """, unsafe_allow_html=True)
 
 with kpi_col2:
     st.markdown("""
-    <div class="value-card">
-        <h4 style="color:#1e3a8a; margin-top:0;">🛡️ 2. 지속가능성 및 회복탄력성 확보</h4>
-        <p style="color:#475569; font-size:14px; line-height:1.6; margin-bottom:0;">
-            경기 하강 국면과 충격 여파 속에서도 산업 생태계가 무너지지 않고 빠르게 연착륙할 수 있도록, 업종별 기초 체력과 지속가능성(Going Concern)을 진단합니다.
-        </p>
+    <div class="circle-container">
+        <div class="circle-card">
+            <span class="circle-emoji">🛡️</span>
+            <span class="circle-text">2. 지속가능성 및<br>회복탄력성 확보</span>
+        </div>
     </div>
     """, unsafe_allow_html=True)
 
 with kpi_col3:
     st.markdown("""
-    <div class="value-card">
-        <h4 style="color:#1e3a8a; margin-top:0;">🤝 3. 신뢰 및 평판 자본 축적</h4>
-        <p style="color:#475569; font-size:14px; line-height:1.6; margin-bottom:0;">
-            리스크 변동성에 적합한 자본 구조(개인 vs 법인) 선택 가이드를 제시하여 이해관계자의 신뢰를 구축하고, 위기 대응 역량을 입증함으로써 기업의 평판 자본을 축적합니다.
-        </p>
+    <div class="circle-container">
+        <div class="circle-card">
+            <span class="circle-emoji">🤝</span>
+            <span class="circle-text">3. 신뢰 및<br>평판 자본 축적</span>
+        </div>
     </div>
     """, unsafe_allow_html=True)
 
+st.markdown("<br><br>", unsafe_allow_html=True)
 st.markdown("---")
 st.caption("Data Source: 중소벤처기업부 창업기업동향 통계 (2016-2025) | 본 대시보드는 경영·회계 및 데이터 분석 전공 탐구 목적으로 제작되었습니다.")
