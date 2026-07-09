@@ -1,0 +1,139 @@
+import streamlit as st
+import pandas as pd
+import plotly.express as px
+
+# 1. 웹앱 기본 설정 (최상단 필수)
+st.set_page_config(
+    page_title="Shock & Resilience 대시보드",
+    layout="wide",
+    initial_sidebar_state="expanded"
+)
+
+# 2. 데이터 불러오기 함수
+@st.cache_data
+def load_data():
+    # 코랩에서 utf-8-sig로 저장했으므로 인코딩 설정 없이 깔끔하게 읽어옵니다.
+    df = pd.read_csv("cleaned_startup_total.csv")
+    df['연도'] = df['연도'].astype(str) # 연도를 문자열로 변환하여 축 정렬 오류 방지
+    return df
+
+try:
+    df = load_data()
+except Exception as e:
+    st.error(f"데이터 파일을 불러오는 중 오류가 발생했습니다: {e}")
+    st.info("GitHub에 'cleaned_startup_total.csv' 파일이 올바르게 업로드되었는지 확인해주세요.")
+    st.stop()
+
+# 3. 메인 화면 헤더 (제목 및 부제목)
+st.title("📉 Shock & Resilience")
+st.subheader("10개년 데이터로 보는 거시경제 충격과 업종별 창업 저항력 지도")
+st.markdown("""
+본 대시보드는 **2020년 코로나19 팬데믹(대면 제한)** 및 **2021년 초저금리 유동성 과열** 등 
+대외적 거시경제 충격이 국내 창업 생태계에 미친 영향을 분석합니다. 
+
+경영·회계적 리스크 관리 관점에서 업종별 저항력을 확인하고 안전한 창업 타이밍을 탐색해 보세요.
+""")
+st.markdown("---")
+
+# 4. 사이드바 설정 (업종 선택 필터)
+st.sidebar.title("📊 산업 필터링")
+st.sidebar.markdown("분석하고 싶은 업종을 선택하세요.")
+
+major_categories = df['대분류'].unique()
+selected_major = st.sidebar.selectbox("🎯 산업 대분류 선택", major_categories)
+
+# 선택한 대분류에 속하는 소분류 필터링
+sub_df = df[df['대분류'] == selected_major]
+selected_minor = st.sidebar.selectbox("🔍 세부 업종(소분류) 선택", sub_df['소분류'].unique())
+
+# 5. 전년 대비 증감률(%) 계산 로직
+# 선택한 세부 업종 데이터만 추출 후 연도 순서대로 정렬
+industry_df = sub_df[sub_df['소분류'] == selected_minor].sort_values(by='연도').reset_index(drop=True)
+
+# 증감률 계산
+pct_changes = [0.0]  # 2016년은 기준점이 없으므로 0% 처리
+for i in range(1, len(industry_df)):
+    prev_val = industry_df.loc[i-1, '창업기업수']
+    curr_val = industry_df.loc[i, '창업기업수']
+    if prev_val > 0:
+        change = ((curr_val - prev_val) / prev_val) * 100
+        pct_changes.append(round(change, 2))
+    else:
+        pct_changes.append(0.0)
+
+industry_df['증감률(%)'] = pct_changes
+
+# 6. 상단 주요 지표 (KPI) 카드 영역
+col1, col2, col3 = st.columns(3)
+
+# 2025년 최신 데이터와 증감률 찾기
+val_2025 = industry_df[industry_df['연도'] == '2025']['창업기업수'].values[0]
+pct_2025 = industry_df[industry_df['연도'] == '2025']['증감률(%)'].values[0]
+
+# 2020년, 2021년 증감률 데이터 추출
+try:
+    shock_2020 = industry_df[industry_df['연도'] == '2020']['증감률(%)'].values[0]
+    shock_2021 = industry_df[industry_df['연도'] == '2021']['증감률(%)'].values[0]
+except IndexError:
+    shock_2020, shock_2021 = 0.0, 0.0
+
+with col1:
+    st.metric(
+        label=f"2025년 최신 창업 규모 ({selected_minor})", 
+        value=f"{int(val_2025):,} 개",
+        delta=f"{pct_2025}% (전년 대비)"
+    )
+with col2:
+    st.metric(label="2020년 팬데믹 쇼크기 변동률", value=f"{shock_2020}%", delta="코로나19 발발", delta_color="off")
+with col3:
+    st.metric(label="2021년 유동성 과열기 변동률", value=f"{shock_2021}%", delta="자산시장 급변", delta_color="off")
+
+st.markdown("---")
+
+# 7. 인터랙티브 데이터 시각화 차트 (2분할)
+left_chart, right_chart = st.columns(2)
+
+with left_chart:
+    st.markdown(f"##### 📈 10개년 창업 기업 수 추이")
+    fig1 = px.line(
+        industry_df, x='연도', y='창업기업수', 
+        markers=True, text='창업기업수', 
+        template='plotly_white'
+    )
+    fig1.update_traces(textposition="top center", line_color="#2b5c8f", line_width=3)
+    st.plotly_chart(fig1, use_container_width=True)
+
+with right_chart:
+    st.markdown(f"##### 📊 전년 대비 창업 수 증감률 (%)")
+    fig2 = px.bar(
+        industry_df, x='연度', y='증감률(%)', # 코랩 정제 시 '연도' 컬럼 확인
+        text='증감률(%)', template='plotly_white',
+        color='증감률(%)', color_continuous_scale=px.colors.sequential.RdBu_r
+    )
+    # 데이터 컬럼명이 코랩 코드와 맞도록 축 이름 보정
+    fig2.update_layout(xaxis_title="연도")
+    fig2.update_traces(textposition="outside")
+    st.plotly_chart(fig2, use_container_width=True)
+
+st.markdown("---")
+
+# 8. 경영·회계적 리스크 진단 자동 리포트
+st.subheader("💡 경영 리스크 관리 가이드 보고서")
+st.markdown(f"### 🔍 **{selected_minor}** 업종의 거시경제 스트레스 테스트 결과")
+
+# 변동폭의 절대값이 15% 이상이면 고변동성 리스크 업종으로 판별
+if abs(shock_2020) >= 15 or abs(shock_2021) >= 15:
+    st.error("🚨 본 업종은 외부 충격에 취약한 **[고변동성 / 경기 민감 업종]** 성향을 나타냅니다.")
+    st.markdown(f"""
+    - **리스크 진단:** 2020년 팬데믹 당시 **{shock_2020}%**, 2021년 과열기 당시 **{shock_2021}%**의 급격한 창업 수 변동을 겪었습니다. 대면 제한 리스크나 금리/유동성 등 외부 환경 조건에 수요와 공급이 매우 민감하게 동요하는 산업 구조입니다.
+    - **재무적 제언:** 경기 하강 국면이나 예기치 못한 쇼크 상황에서 리스크가 커질 위험이 높습니다. 고정비(높은 임대료, 과도한 고정 인건비) 비율을 최소화하고, 경영난에 대비해 3~6개월을 버틸 수 있는 **비상 운전자본(Cash Buffer)**을 일반 업종보다 두텁게 확보해야 지속가능성(Going Concern)을 지켜낼 수 있습니다.
+    """)
+else:
+    st.success("🛡️ 本 업종은 대외 위기에도 견고한 **[저변동성 / 불황 저항형 업종]** 성향을 나타냅니다.")
+    st.markdown(f"""
+    - **리스크 진단:** 대격변기였던 2020년({shock_2020}%)과 2021년({shock_2021}%)에도 창업 지표가 폭발하거나 무너지지 않고 안정적인 기조를 유지했습니다. 경기 흐름과 무관하게 사회적으로 상시 요구되는 지식 기반 인프라 혹은 필수재 비즈니스 모델입니다.
+    - **재무적 제언:** 위기 상황에서의 리스크 방어력이 입증된 안전지대입니다. 다만, 자산 과열기(호황기)에도 창업 수가 급증하지 않는 특성이 있으므로, 단기 대박을 노리기보다는 장기적이고 점진적인 투자수익률(ROI) 관점으로 안정적인 손익분기점(BEP) 계획을 세우는 것이 적절합니다.
+    """)
+
+st.markdown("---")
+st.caption("Data Source: 중소벤처기업부 창업기업동향 통계 | 본 대시보드는 경영·회계 전공 탐구 목적으로 제작되었습니다.")
