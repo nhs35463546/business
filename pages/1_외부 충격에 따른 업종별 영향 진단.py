@@ -116,13 +116,14 @@ fig1.update_traces(textposition="top center", line_color="#2b5c8f", line_width=3
 fig1.add_vrect(
     x0="2020", x1="2021",              # 강조할 시작 연도와 끝 연도
     fillcolor="rgba(249, 115, 22, 0.1)", # 주황색 톤의 부드러운 반투명 배경 (알파값 0.1)
-    layer="below",                     # 그래프 선 뒤로 배경 배치
-    line_width=1,                      # 테두리 두께
+    layer="below",                      # 그래프 선 뒤로 배경 배치
+    line_width=1,                       # 테두리 두께
     line_color="rgba(249, 115, 22, 0.3)", # 테두리 선 색상
     line_dash="dot",                   # 점선 처리
     annotation_text="거시경제 대격변기 (팬데믹 & 과열기)", # 상단에 표시될 문구
     annotation_position="top left",    # 문구 위치
     annotation_font=dict(size=12, color="#c2410c", weight="bold") # 텍스트 스타일
+) # <- 여기에 누락되었던 닫는 괄호 ) 를 추가했습니다.
     
 # 마우스 마찰 시 기본 동작을 '드래그 이동(pan)'으로 설정하고 마우스 휠 줌 활성화
 fig1.update_layout(
@@ -139,4 +140,4 @@ st.plotly_chart(fig1, use_container_width=True, config={
 
 st.markdown("---")
 # 수정된 부분: 닫히지 않았던 맨 마지막 문장을 올바르게 닫아주었습니다.
-st.caption("Data Source: 업종별 창업기업수 통계 (2016-2025) | Page 1")
+st.caption("Data Source: 업종별 창업기업수 통계 (2016-2025) | Page 1")업수 통계 (2016-2025) | Page 1")
