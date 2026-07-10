@@ -37,8 +37,16 @@ sub_df = df[df['대분류'] == selected_major]
 with filter_col2:
     selected_minor = st.selectbox("🔎 세부 업종 (소분류)", sub_df['소분류'].unique())
 
-# 4. 전년 대비 증감률(%) 연산 프로세스
-industry_df = sub_df[sub_df['소분류'] == selected_minor].sort_values(by='연도').reset_index(drop=True)
+# =========================================================================
+# 4. [수정] 데이터 타입 강제 변환 및 연도별 정렬 순서 보정 프로세스
+# =========================================================================
+# 소분류 필터링 후, 연도를 정수형(int)으로 정렬한 뒤 다시 시각화용 문자열(str)로 변환합니다.
+industry_df = sub_df[sub_df['소분류'] == selected_minor].copy()
+
+# 연도 컬럼을 숫자로 바꾸어 정확하게 오름차순 정렬 (2016 -> 2025)
+industry_df['연도_형변환'] = industry_df['연도'].astype(int)
+industry_df = industry_df.sort_values(by='연도_형변환').reset_index(drop=True)
+industry_df['연도'] = industry_df['연도_형변환'].astype(str)
 
 pct_changes = [0.0]
 for i in range(1, len(industry_df)):
@@ -51,7 +59,6 @@ for i in range(1, len(industry_df)):
         pct_changes.append(0.0)
 
 industry_df['증감률(%)'] = pct_changes
-
 # 5. 핵심 재무 지표 (KPI) 스코어보드
 col1, col2 = st.columns(2)
 
