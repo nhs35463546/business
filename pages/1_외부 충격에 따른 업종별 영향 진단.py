@@ -134,7 +134,11 @@ fig1.add_vrect(
 # 마우스 마찰 시 기본 동작을 '드래그 이동(pan)'으로 설정하고 마우스 휠 줌 활성화
 fig1.update_layout(
     dragmode='pan',
-    xaxis=dict(fixedrange=False),
+    xaxis=dict(
+        fixedrange=False,
+        type='category', # x축을 숫자가 아닌 독립된 '연도 카테고리' 순서대로 정렬
+        categoryorder='category ascending'
+    ),
     yaxis=dict(fixedrange=False)
 )
 
