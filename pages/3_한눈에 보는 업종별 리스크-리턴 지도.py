@@ -233,4 +233,4 @@ else:
     st.info("💡 상단 매트릭스 지도에 표시된 업종이 없으면 누적 차트도 나타나지 않습니다.")
 
 st.markdown("---")
-st.caption("Data Source: 업종별 창업기업수 통계 (2016-2025) | Page 3 (인터랙티브 포트폴리오 스크리닝)")
+st.caption("Data Source: 업종별 창업기업수 통계 (2016-2025) | Page 3")
