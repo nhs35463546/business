@@ -118,20 +118,29 @@ except IndexError:
     corp_shock_2020, priv_shock_2020 = 0.0, 0.0
 
 # =========================================================================
-# 7. 핵심 비교 지표 (KPI 스코어보드)
+# 7. [수정됨] 핵심 비교 지표 (부등호 레이아웃 구성)
 # =========================================================================
 st.markdown(f"##### 📊 2020년 코로나19 팬데믹 당시 **[{selected_minor}]** 업종의 형태별 창업 변동률")
-kpi_col1, kpi_col2, kpi_col3 = st.columns(3)
+
+# 부등호 결정 알고리즘
+if corp_shock_2020 > priv_shock_2020:
+    sign_indicator = ">"
+elif corp_shock_2020 < priv_shock_2020:
+    sign_indicator = "<"
+else:
+    sign_indicator = "="
+
+kpi_col1, kpi_sign, kpi_col2 = st.columns([3, 1, 3])
 
 with kpi_col1:
     st.metric(label="법인 창업 변동률", value=f"{corp_shock_2020}%", delta="법인사업자")
+
+with kpi_sign:
+    # 큰 부등호를 중앙에 배치
+    st.markdown(f'<div class="sign-box">{sign_indicator}</div>', unsafe_allow_html=True)
+
 with kpi_col2:
     st.metric(label="개인 창업 변동률", value=f"{priv_shock_2020}%", delta="개인사업자", delta_color="inverse")
-with kpi_col3:
-    # 구조적 방어력 격차 산출 (법인이 개인보다 얼마나 덜 감소했는지 혹은 더 성장했는지)
-    defense_gap = round(corp_shock_2020 - priv_shock_2020, 2)
-    st.metric(label="법인의 경제위기 방어 격차(Gap)", value=f"{defense_gap}%p", 
-              delta="플러스일수록 법인이 위기에 강함", delta_color="off")
 
 st.markdown("---")
 
@@ -154,18 +163,18 @@ st.plotly_chart(fig_bar, use_container_width=True, config={'displayModeBar': Fal
 st.markdown("---")
 
 # =========================================================================
-# 9. [더 쉽게 수정됨] 중학생도 이해하는 법인 vs 개인 창업 성적표
+# 9. [수정됨] 알고리즘 기반 경영학적 리스크 리포트
 # =========================================================================
 st.markdown(f"### 📝 **{selected_minor}** 업종의 법인 vs 개인 성적표")
 
-# 법인이 더 잘 버텼을 때 (격차가 0보다 클 때)
-if defense_gap > 0:
+# 격차가 0보다 클 때 (법인이 수치가 더 높아서 잘 방어했을 때)
+if corp_shock_2020 > priv_shock_2020:
     st.success("🛡️ 실험 결과: '법인'이라는 형태가 위기를 막아주는 든든한 방패가 되었습니다!")
     st.markdown(f"""
     <div class="compare-card">
         <p style="color:#334155; line-height:1.8; font-size:16px;">
-            2020년 코로나19로 경제가 어려웠을 때, <b>법인 창업({corp_shock_2020}%)</b>이 <b>개인 창업({priv_shock_2020}%)</b>보다 
-            <b>{defense_gap}%p만큼 충격을 덜 받거나 더 잘 버텨냈습니다.</b> 왜 이런 차이가 났을까요?
+            2020년 코로나19로 경제가 어려웠을 때, <b>법인 창업 변동률({corp_shock_2020}%)</b>이 <b>개인 창업 변동률({priv_shock_2020}%)</b>보다 
+            수치상으로 더 높게 나타났습니다. 왜 이런 차이가 났을까요?
         </p>
         <div class="insight-box">
             <h4 style="margin-top:0; color:#0f172a;">🎯 핵심 리스크 관리 분석</h4>
@@ -179,14 +188,14 @@ if defense_gap > 0:
     </div>
     """, unsafe_allow_html=True)
 
-# 개인이 더 잘 버텼을 때 (격차가 0보다 작거나 같을 때)
+# 개인이 수치가 더 높거나 같을 때
 else:
     st.warning("⚠️ 역발상 결과: 위기 속에서 오히려 '개인 창업'의 빠른 기동성이 빛났습니다!")
     st.markdown(f"""
     <div class="compare-card">
         <p style="color:#334155; line-height:1.8; font-size:16px;">
-            예상과 달리, 2020년 위기 속에서 <b>개인 창업({priv_shock_2020}%)</b>이 <b>법인 창업({corp_shock_2020}%)</b>보다 
-            <b>{abs(defense_gap)}%p만큼 더 잘 버텼습니다.</b> 개인 창업만의 특별한 생존 비결은 무엇이었을까요?
+            예상과 달리, 2020년 위기 속에서 <b>개인 창업 변동률({priv_shock_2020}%)</b>이 <b>법인 창업 변동률({corp_shock_2020}%)</b>보다 
+            수치상으로 더 높게 나타났습니다. 개인 창업만의 특별한 생존 비결은 무엇이었을까요?
         </p>
         <div class="insight-box">
             <h4 style="margin-top:0; color:#0f172a;">🎯 핵심 리스크 관리 분석</h4>
