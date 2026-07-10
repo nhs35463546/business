@@ -130,7 +130,6 @@ st.plotly_chart(fig1, use_container_width=True, config={
     'displayModeBar': False,  # 툴바 전체 숨김 (캡처 기능 차단)
     'scrollZoom': True        # 마우스 휠 스크롤로 줌인/줌아웃 활성화
 })
->> 이 그래프 차트에서 2020년과 2021년을 강조하려면 어떻게 하는 게 좋을까?
 
 
 st.markdown("---")
