@@ -111,7 +111,7 @@ else:
 # =========================================================================
 st.markdown(f"##### 📊 10개년 창업 기업 수 추이 ({selected_minor})")
 fig1 = px.line(
-    industry_df, x='연도', # 1번 로드 함수에서 '연도'로 통일했으므로 안전하게 '연도' 지정
+    industry_df, x='연도',
     y='창업기업수', 
     markers=True, text='창업기업수', 
     template='plotly_white'
@@ -125,8 +125,8 @@ fig1.update_layout(
     yaxis=dict(fixedrange=False)
 )
 
-# [핵심] 상단 카메라 캡처 버튼 및 상단 메뉴 툴바 전체를 숨겨서 깔끔하게 마우스 드래그/줌만 남깁니다.
-st.plotly_chart(fig1, use_container_width=True, config={
+# [핵심] use_container_width 경고를 해결하기 위해 width='stretch'로 변경 적용
+st.plotly_chart(fig1, width='stretch', config={
     'displayModeBar': False,  # 툴바 전체 숨김 (캡처 기능 차단)
     'scrollZoom': True        # 마우스 휠 스크롤로 줌인/줌아웃 활성화
 })
@@ -134,5 +134,4 @@ st.plotly_chart(fig1, use_container_width=True, config={
 
 st.markdown("---")
 
-# 수정된 부분: 닫히지 않았던 맨 마지막 문장을 올바르게 닫아주었습니다.
 st.caption("Data Source: 업종별 창업기업수 통계 (2016-2025) | Page 1")
