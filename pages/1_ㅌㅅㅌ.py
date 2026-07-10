@@ -24,13 +24,19 @@ st.markdown("""
 """)
 st.markdown("---")
 
-# 3. 사이드바 - 업종 필터 기능 구현
-st.sidebar.title("🔍 업종 선택")
-major_categories = df['대분류'].unique()
-selected_major = st.sidebar.selectbox("🎯 산업 대분류", major_categories)
+# 3. 메인 페이지 내 업종 필터 기능 구현 (사이드바에서 이동)
+st.subheader("🔍 분석 대상 업종 선택")
+filter_col1, filter_col2 = st.columns(2)
 
+with filter_col1:
+    major_categories = df['대분류'].unique()
+    selected_major = st.selectbox("🎯 산업 대분류", major_categories)
+
+# 대분류 선택에 따른 소분류 필터링
 sub_df = df[df['대분류'] == selected_major]
-selected_minor = st.sidebar.selectbox("🔎 세부 업종 (소분류)", sub_df['소분류'].unique())
+
+with filter_col2:
+    selected_minor = st.selectbox("🔎 세부 업종 (소분류)", sub_df['소분류'].unique())
 
 # 4. 전년 대비 증감률(%) 연산 프로세스
 industry_df = sub_df[sub_df['소분류'] == selected_minor].sort_values(by='연도').reset_index(drop=True)
