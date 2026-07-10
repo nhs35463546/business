@@ -138,4 +138,4 @@ with kpi_col3:
 
 st.markdown("<br><br>", unsafe_allow_html=True)
 st.markdown("---")
-st.caption("Data Source: 업종별 창업기업수(2016-2025) | 본 대시보드는 경영·회계 및 데이터 분석 전공 탐구 목적으로 제작되었습니다.")
+st.caption("Data Source: 업종별 창업기업수 통계 (2016-2025) | 본 대시보드는 경영·회계 및 데이터 분석 전공 탐구 목적으로 제작되었습니다.")
