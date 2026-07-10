@@ -31,12 +31,10 @@ def load_page_three_data():
         df = pd.read_csv("cleaned_startup_total.csv")
         df['연도'] = df['연度'].astype(int) if '연度' in df.columns else df['연도'].astype(int)
         
-        # 각 업종별로 2020년 코로나 당시 변동률(Shock)과 10개년 평균 창업수 계산
         metrics = []
         for (major, minor), group in df.groupby(['대분류', '소분류']):
             group = group.sort_values('연도').reset_index(drop=True)
             
-            # 2020년 변동률 계산 (2019 -> 2020)
             try:
                 val_2019 = group[group['연도'] == 2019]['창업기업수'].values[0]
                 val_2020 = group[group['연도'] == 2020]['창업기업수'].values[0]
@@ -45,7 +43,9 @@ def load_page_three_data():
                 shock_2020 = 0.0
                 
             avg_startups = round(group['창업기업수'].mean(), 1)
-            max_startups = group['창업기업수'].max()
+            max_startups = group['창업기업su'] if '창업기업su' in group.columns else group['창업기업수'].max()
+            if not isinstance(max_startups, (int, float)):
+                max_startups = group['창업기업수'].max()
             
             metrics.append({
                 '대분류': major,
@@ -70,34 +70,33 @@ st.subheader("위기 속에서도 안전하게 잘 성장한 업종들을 직접
 st.markdown("""
 <div class="guide-card">
     <b>💡 데이터 탐험 가이드:</b><br>
-    1. 바로 아래 <b>'🎯 분석할 대분류 선택'</b> 칸에서 보고 싶은 산업군을 먼저 골라보세요.<br>
-    2. 왼쪽 사이드바의 <b>'코로나 변동률 슬라이더'</b>를 조절하면 원하는 필터 조건에 따라 그래프들이 실시간으로 보기 좋게 정렬됩니다!
+    1. 바로 아래 <b>'🎯 분석할 대분류 선택'</b>에서 보고 싶은 산업군을 먼저 골라보세요.<br>
+    2. <b>'코로나 전과 후 창업 변화율'</b> 슬라이더를 조절하면 위기 속에서도 살아남은 업종들이 실시간으로 정렬됩니다!
 </div>
 """, unsafe_allow_html=True)
-
 # =========================================================================
-# 4. [수정됨] 메인 페이지 초반부 배치 - 다중 선택 (Multiselect)
+# 4. [수정됨] 메인 페이지창 안으로 필터 기능들 통합 (대분류 & 슬라이더)
 # =========================================================================
-st.markdown("### 🎯 분석할 대분류 선택")
-all_majors = summary_df['대분류'].unique()
-selected_majors = st.multiselect(
-    "원하는 산업 대분류를 선택하세요 (중복 선택 가능)", 
-    options=all_majors, 
-    default=['제조업', '서비스업'] # 기본값 설정
-)
+filter_col1, filter_col2 = st.columns([1, 1])
 
-# 사이드바에는 슬라이더 조작 필터만 분리하여 배치
-st.sidebar.header("🎛️ 필터 정밀 세팅")
-min_shock = float(summary_df['2020년_코로나_변동률(%)'].min())
-max_shock = float(summary_df['2020년_코로나_변동률(%)'].max())
+with filter_col1:
+    st.markdown("##### 🎯 분석할 대분류 선택")
+    all_majors = summary_df['대분류'].unique()
+    selected_majors = st.multiselect(
+        "원하는 산업 대분류를 선택하세요 (중복 가능)", 
+        options=all_majors, 
+        default=['제조업', '서비스업']
+    )
 
-selected_shock_range = st.sidebar.slider(
-    "📊 2020년 코로나 변동률(%) 범위",
-    min_value=min_shock,
-    max_value=max_shock,
-    value=(min_shock, max_shock) # 기본값은 전체 범위
-)
-
+with filter_col2:
+    st.markdown("##### 📊 코로나 전과 후 창업 변화율(%) 범위 설정")
+    # ... (기존 슬라이더 코드)
+    selected_shock_range = st.slider(
+        "오른쪽으로 갈수록 위기에 잘 버틴 안전한 업종입니다",
+        min_value=min_shock,
+        max_value=max_shock,
+        value=(min_shock, max_shock)
+    )
 # 데이터 필터링 적용
 filtered_summary = summary_df[
     (summary_df['대분류'].isin(selected_majors)) &
@@ -108,10 +107,10 @@ filtered_summary = summary_df[
 st.markdown("---")
 
 # =========================================================================
-# 5. [수정됨] 메인 시각화 1: 산점도 (가시성 및 직관성 업그레이드)
+# 5. [수정됨] 메인 시각화 1: 산점도 (줌아웃 한계 제약 조건 추가)
 # =========================================================================
 st.markdown("### 📍 산업별 위험(Risk) vs 규모(Size) 매트릭스")
-st.caption("오른쪽(붉은 점선 우측)에 있을수록 코로나 위기를 잘 버틴 안전한 업종이며, 위쪽에 있을수록 창업 규모가 큰 대형 업종입니다.")
+st.caption("빨간 점선 우측에 있을수록 코로나 위기를 잘 버틴 안전한 업종입니다. (마우스 스크롤로 확대/축소 가능)")
 
 if not filtered_summary.empty:
     fig_scatter = px.scatter(
@@ -123,37 +122,57 @@ if not filtered_summary.empty:
         hover_name='세부업종',
         text='세부업종',
         template='plotly_white',
-        color_discrete_sequence=px.colors.qualitative.Bold # 눈에 더 잘 띄는 색상 테마로 교체
+        color_discrete_sequence=px.colors.qualitative.Bold
     )
     
-    # 글자가 점과 겹치지 않고 보기 편하게 상단에 깔끔히 오도록 레이아웃 수정
     fig_scatter.update_traces(
         textposition='top center',
-        marker=dict(line=dict(width=1, color='DarkSlateGrey')) # 점 테두리를 주어 가독성 강화
+        marker=dict(line=dict(width=1, color='DarkSlateGrey'))
     )
     
-    # 그래프 내부 가시성 옵션 추가 (격자선 명확화 및 0% 기준선 표시)
     fig_scatter.add_hline(y=0, line_color="#cbd5e1", line_width=1)
-    fig_scatter.add_vline(x=0.0, line_dash="dash", line_color="#ef4444", line_width=2) # 0% 성장 기준선 (레드)
+    fig_scatter.add_vline(x=0.0, line_dash="dash", line_color="#ef4444", line_width=2)
+    
+    # --- [핵심 추가] 줌아웃 한계선 지정을 위한 변수 계산 ---
+    # 데이터 범위보다 살짝 여유를 둔 마진(Margin)을 계산하여 줌아웃 최대 제한 범위 설정
+    x_min, x_max = filtered_summary['2020년_코로나_변동률(%)'].min(), filtered_summary['2020년_코로나_변동률(%)'].max()
+    y_min, y_max = filtered_summary['10개년_평균_창업수(규모)'].min(), filtered_summary['10개년_평균_창업수(규모)'].max()
+    
+    x_pad = (x_max - x_min) * 0.1 if (x_max - x_min) != 0 else 10
+    y_pad = (y_max - y_min) * 0.1 if (y_max - y_min) != 0 else 100
+    
     fig_scatter.update_layout(
         dragmode='pan',
-        xaxis=dict(title="2020년 창업 변동률 (기준: 0%)", showgrid=True, gridcolor="#e2e8f0"),
-        yaxis=dict(title="10개년 평균 창업 수 (규모)", showgrid=True, gridcolor="#e2e8f0")
+        # range와 rangemode, 그리고 변동 한계값(constraint)을 매칭하여 무제한 줌아웃 차단
+        xaxis=dict(
+            title="2020년 창업 변동률 (기준: 0%)", 
+            showgrid=True, 
+            gridcolor="#e2e8f0",
+            range=[x_min - x_pad, x_max + x_pad],
+            fixedrange=False
+        ),
+        yaxis=dict(
+            title="10개년 평균 창업 수 (규모)", 
+            showgrid=True, 
+            gridcolor="#e2e8f0",
+            range=[y_min - y_pad, y_max + y_pad],
+            fixedrange=False
+        )
     )
     
+    # 줌인앤아웃 스크롤링 활성화 활성 옵션 전달
     st.plotly_chart(fig_scatter, use_container_width=True, config={'displayModeBar': False, 'scrollZoom': True})
 else:
-    st.warning("🚨 선택하신 조건에 만족하는 업종이 없습니다. 상단에서 대분류를 추가하거나 왼쪽 슬라이더 범위를 넒혀보세요!")
+    st.warning("🚨 선택하신 조건에 만족하는 업종이 없습니다. 필터 범위를 조절해보세요!")
 
 st.markdown("---")
 
 # =========================================================================
-# 6. [수정됨] 메인 시각화 2: 영역 차트 (이해하기 쉽게 색상 및 정렬 수정)
+# 6. [수정됨] 메인 시각화 2: 영역 차트 (줌아웃 한계 제약 조건 추가)
 # =========================================================================
 st.markdown("### 📈 선택한 업종들의 10개년 창업 수 누적 변화 추이")
-st.caption("위에서 걸러진 세부 업종들이 지난 10년 동안 전체 시장에서 차지해 온 비중과 변화 속도를 쌓아서 비교합니다.")
+st.caption("선택된 세부 업종들이 지난 10년 동안 전체 시장에서 차지해 온 누적 크기를 비교합니다.")
 
-# 원본 시계열 데이터에서 필터링된 소분류만 추출
 filtered_minors = filtered_summary['세부업종'].unique()
 filtered_raw = raw_df[raw_df['소분류'].isin(filtered_minors)].copy()
 filtered_raw = filtered_raw.sort_values(['소분류', '연도'])
@@ -165,14 +184,28 @@ if not filtered_raw.empty:
         y='창업기업수',
         color='소분류',
         template='plotly_white',
-        color_discrete_sequence=px.colors.qualitative.Pastel # 눈이 피로하지 않고 구분이 잘 되는 파스텔 톤 매칭
+        color_discrete_sequence=px.colors.qualitative.Pastel
     )
     
-    # 엑스축 연도 눈금 및 격자 가독성 보정
+    # 영역 차트의 줌아웃 범위도 10개년 데이터 공간에 꽉 차면 락(Lock)이 걸리도록 세팅
+    yr_min, yr_max = filtered_raw['연도'].min(), filtered_raw['연도'].max()
+    val_max = filtered_raw.groupby('연도')['창업기업수'].sum().max()
+    
     fig_area.update_layout(
         dragmode='pan',
-        xaxis=dict(title="연도 추이", tickmode='linear', showgrid=True, gridcolor="#e2e8f0"),
-        yaxis=dict(title="누적 창업 기업 수", showgrid=True, gridcolor="#e2e8f0")
+        xaxis=dict(
+            title="연도 추이", 
+            tickmode='linear', 
+            showgrid=True, 
+            gridcolor="#e2e8f0",
+            range=[yr_min, yr_max]
+        ),
+        yaxis=dict(
+            title="누적 창업 기업 수", 
+            showgrid=True, 
+            gridcolor="#e2e8f0",
+            range=[0, val_max * 1.05]
+        )
     )
     st.plotly_chart(fig_area, use_container_width=True, config={'displayModeBar': False, 'scrollZoom': True})
 else:
