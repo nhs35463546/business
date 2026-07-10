@@ -74,29 +74,51 @@ st.markdown("""
     2. <b>'코로나 전과 후 창업 변화율'</b> 슬라이더를 조절하면 위기 속에서도 살아남은 업종들이 실시간으로 정렬됩니다!
 </div>
 """, unsafe_allow_html=True)
+
 # =========================================================================
-# 4. [수정됨] 메인 페이지창 안으로 필터 기능들 통합 (대분류 & 슬라이더)
+# 4. [이름 변경 및 오류 완벽 차단] 메인 페이지창 필터 통합 섹션
 # =========================================================================
 filter_col1, filter_col2 = st.columns([1, 1])
 
 with filter_col1:
     st.markdown("##### 🎯 분석할 대분류 선택")
-    all_majors = summary_df['대분류'].unique()
+    all_majors = summary_df['대분류'].unique() if not summary_df.empty else []
     selected_majors = st.multiselect(
         "원하는 산업 대분류를 선택하세요 (중복 가능)", 
         options=all_majors, 
-        default=['제조업', '서비스업']
+        default=['제조업', '서비스업'] if '제조업' in all_majors else all_majors[:2]
     )
 
 with filter_col2:
     st.markdown("##### 📊 코로나 전과 후 창업 변화율(%) 범위 설정")
-    # ... (기존 슬라이더 코드)
+    
+    # 기본값 선언 (NameError 절대 방지용)
+    min_shock = -100.0
+    max_shock = 100.0
+    
+    # 데이터가 유효한지 확인하고 최소/최대값 안전하게 추출
+    if '2020년_코로나_변동률(%)' in summary_df.columns:
+        valid_shocks = summary_df['2020년_코로나_변동률(%)'].dropna()
+        if not valid_shocks.empty:
+            try:
+                min_shock = float(valid_shocks.min())
+                max_shock = float(valid_shocks.max())
+                
+                # 최소값과 최대값이 우연히 똑같을 경우 슬라이더 에러 방지
+                if min_shock == max_shock:
+                    min_shock -= 10.0
+                    max_shock += 10.0
+            except Exception:
+                pass # 에러가 나면 사전에 선언한 기본값(-100, 100) 유지
+
+    # 변경된 이름이 반영된 슬라이더 조작 창
     selected_shock_range = st.slider(
-        "오른쪽으로 갈수록 위기에 잘 버틴 안전한 업종입니다",
+        "오른쪽으로 갈수록 코로나 이후 창업이 더 많이 늘어난 업종입니다",
         min_value=min_shock,
         max_value=max_shock,
         value=(min_shock, max_shock)
     )
+
 # 데이터 필터링 적용
 filtered_summary = summary_df[
     (summary_df['대분류'].isin(selected_majors)) &
@@ -105,7 +127,6 @@ filtered_summary = summary_df[
 ]
 
 st.markdown("---")
-
 # =========================================================================
 # 5. [수정됨] 메인 시각화 1: 산점도 (줌아웃 한계 제약 조건 추가)
 # =========================================================================
