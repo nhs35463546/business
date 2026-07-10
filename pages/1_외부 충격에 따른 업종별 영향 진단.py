@@ -100,31 +100,30 @@ else:
 
 
 # =========================================================================
-# 7. [위치 이동 및 기능 제한] 10개년 창업 기업 수 추이 차트
+# 7. 10개년 창업 기업 수 추이 차트 (수정 버전)
 # =========================================================================
 st.markdown(f"##### 📊 10개년 창업 기업 수 추이 ({selected_minor})")
 fig1 = px.line(
-    industry_df, x='연도', # 1번 로드 함수에서 '연도'로 통일했으므로 안전하게 '연도' 지정
+    industry_df, x='연도', 
     y='창업기업수', 
     markers=True, text='창업기업수', 
     template='plotly_white'
 )
 fig1.update_traces(textposition="top center", line_color="#2b5c8f", line_width=3)
-# -------------------------------------------------------------------------
-# [추가] 2020년 ~ 2021년 대격변기 구간 배경 음영 강조 및 텍스트 추가
-# -------------------------------------------------------------------------
+
+# 2020년 ~ 2021년 대격변기 구간 배경 음영 강조 및 텍스트 추가
 fig1.add_vrect(
-    x0="2020", x1="2021",              # 강조할 시작 연도와 끝 연도
-    fillcolor="rgba(249, 115, 22, 0.1)", # 주황색 톤의 부드러운 반투명 배경 (알파값 0.1)
-    layer="below",                      # 그래프 선 뒤로 배경 배치
-    line_width=1,                       # 테두리 두께
-    line_color="rgba(249, 115, 22, 0.3)", # 테두리 선 색상
-    line_dash="dot",                   # 점선 처리
-    annotation_text="거시경제 대격변기 (팬데믹 & 과열기)", # 상단에 표시될 문구
-    annotation_position="top left",    # 문구 위치
-    annotation_font=dict(size=12, color="#c2410c", weight="bold") # 텍스트 스타일
-) # <- 여기에 누락되었던 닫는 괄호 ) 를 추가했습니다.
-    
+    x0="2020", x1="2021",              
+    fillcolor="rgba(249, 115, 22, 0.1)", 
+    layer="below",                     
+    line_width=1,                      
+    line_color="rgba(249, 115, 22, 0.3)", 
+    line_dash="dot",                   
+    annotation_text="거시경제 대격변기 (팬데믹 & 과열기)", 
+    annotation_position="top left",    
+    annotation_font=dict(size=12, color="#c2410c", weight="bold") 
+)
+
 # 마우스 마찰 시 기본 동작을 '드래그 이동(pan)'으로 설정하고 마우스 휠 줌 활성화
 fig1.update_layout(
     dragmode='pan',
@@ -132,12 +131,18 @@ fig1.update_layout(
     yaxis=dict(fixedrange=False)
 )
 
-# [핵심] 상단 카메라 캡처 버튼 및 상단 메뉴 툴바 전체를 숨겨서 깔끔하게 마우스 드래그/줌만 남깁니다.
-st.plotly_chart(fig1, use_container_width=True, config={
-    'displayModeBar': False,  # 툴바 전체 숨김 (캡처 기능 차단)
-    'scrollZoom': True        # 마우스 휠 스크롤로 줌인/줌아웃 활성화
-})
+# -------------------------------------------------------------------------
+# [수정] 경고 제거 및 Segmentation fault 방지를 위한 옵션 변경
+# -------------------------------------------------------------------------
+st.plotly_chart(
+    fig1, 
+    width='stretch',        # 기존 use_container_width=True 대신 최신 문법으로 변경
+    theme="streamlit",      # 스트림릿 자체 테마를 입혀 렌더링 오류 방지
+    config={
+        'displayModeBar': False,  
+        'scrollZoom': True        
+    }
+)
 
 st.markdown("---")
-# 수정된 부분: 닫히지 않았던 맨 마지막 문장을 올바르게 닫아주었습니다.
 st.caption("Data Source: 업종별 창업기업수 통계 (2016-2025) | Page 1")
