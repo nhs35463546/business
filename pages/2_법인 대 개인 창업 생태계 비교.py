@@ -198,4 +198,4 @@ else:
 
 st.markdown("<br>", unsafe_allow_html=True)
 st.markdown("---")
-st.caption("Data Source: 업종별 창업기업수 통계 (2016-2025) | Page 2 )
+st.caption("Data Source: 업종별 창업기업수 통계 (2016-2025) | Page 2" )
