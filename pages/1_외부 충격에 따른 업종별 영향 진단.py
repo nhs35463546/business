@@ -140,4 +140,4 @@ st.plotly_chart(fig1, use_container_width=True, config={
 
 st.markdown("---")
 # 수정된 부분: 닫히지 않았던 맨 마지막 문장을 올바르게 닫아주었습니다.
-st.caption("Data Source: 업종별 창업기업수 통계 (2016-2025) | Page 1")업수 통계 (2016-2025) | Page 1")
+st.caption("Data Source: 업종별 창업기업수 통계 (2016-2025) | Page 1")
