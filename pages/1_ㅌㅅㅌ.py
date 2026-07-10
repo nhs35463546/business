@@ -91,7 +91,8 @@ st.markdown("---")
 # =========================================================================
 st.markdown(f"##### 📊 10개년 창업 기업 수 추이 ({selected_minor})")
 fig1 = px.line(
-    industry_df, x='연度' if '연度' in industry_df.columns else '연도', y='창업기업수', 
+    industry_df, x='연도', # 1번 로드 함수에서 '연도'로 통일했으므로 안전하게 '연도' 지정
+    y='창업기업수', 
     markers=True, text='창업기업수', 
     template='plotly_white'
 )
@@ -111,4 +112,5 @@ st.plotly_chart(fig1, use_container_width=True, config={
 })
 
 st.markdown("---")
-st.caption("Data Source: 업종별 창업기업수 통계 (2016-2025) | Page 1
+# 수정된 부분: 닫히지 않았던 맨 마지막 문장을 올바르게 닫아주었습니다.
+st.caption("Data Source: 업종별 창업기업수 통계 (2016-2025) | Page 1")
