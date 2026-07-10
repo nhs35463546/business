@@ -8,7 +8,7 @@ st.set_page_config(
 )
 
 # 2. 고급스러운 금융/경영 대시보드 테마 및 원형(Circle) 디자인 CSS 주입
-st.markdown("""
+st.markdown(""
     <style>
     /* 메인 화면 전체 배경을 금융 분석 플랫폼 느낌의 연한 블루그레이 톤으로 변경 */
     .stApp {
