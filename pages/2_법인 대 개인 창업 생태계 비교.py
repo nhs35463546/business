@@ -24,7 +24,7 @@ st.markdown("""
     }
     .compare-card {
         background-color: #ffffff;
-        padding: 20px;
+        padding: 25px;
         border-radius: 12px;
         box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
         margin-bottom: 20px;
@@ -59,7 +59,7 @@ df_corp, df_priv = load_comparison_data()
 
 # 4. 페이지 헤더
 st.title("⚖️ 법인 vs 개인 창업 구조별 위기 대응력 비교")
-st.subheader("경영 구조(유한책임 및 자본 규모)에 따른 거시경제 충격 방어력 분석")
+st.subheader("회사의 형태(유한책임 제도 및 자본 조달력)에 따른 경제 위기 방어력 분석")
 st.markdown("---")
 
 # 5. 분석 대상 업종 선택 (메인 화면 배치)
@@ -120,7 +120,7 @@ except IndexError:
 # =========================================================================
 # 7. 핵심 비교 지표 (KPI 스코어보드)
 # =========================================================================
-st.markdown(f"##### 📊 2020년 코로나19 팬데믹 쇼크 당시 **[{selected_minor}]** 업종의 형태별 변동률")
+st.markdown(f"##### 📊 2020년 코로나19 팬데믹 당시 **[{selected_minor}]** 업종의 형태별 창업 변동률")
 kpi_col1, kpi_col2, kpi_col3 = st.columns(3)
 
 with kpi_col1:
@@ -130,98 +130,69 @@ with kpi_col2:
 with kpi_col3:
     # 구조적 방어력 격차 산출 (법인이 개인보다 얼마나 덜 감소했는지 혹은 더 성장했는지)
     defense_gap = round(corp_shock_2020 - priv_shock_2020, 2)
-    st.metric(label="법인의 구조적 방어력 격차(Gap)", value=f"{defense_gap}%p", 
+    st.metric(label="법인의 경제위기 방어 격차(Gap)", value=f"{defense_gap}%p", 
               delta="플러스일수록 법인이 위기에 강함", delta_color="off")
 
 st.markdown("---")
 
 # =========================================================================
-# 8. 시각화 섹션 (Grouped Bar Chart & Line Chart)
+# 8. 시각화 섹션 (증감률 차트를 없애고 연도별 창업수 비교 차트만 깔끔하게 배치)
 # =========================================================================
-chart_tab1, chart_tab2 = st.tabs(["📊 연도별 창업수 비교 (규모)", "📈 연도별 증감률 추이 (속도)"])
-
-with chart_tab1:
-    st.markdown(f"##### **[{selected_minor}]** 법인 vs 개인 연도별 창업 기업 수 비교")
-    fig_bar = px.bar(
-        combined_df,
-        x='연도',
-        y='창업기업수',
-        color='경영형태',
-        barmode='group',
-        template='plotly_white',
-        color_discrete_sequence=['#1e3a8a', '#94a3b8'] # 다크네이비와 실버그레이 매칭
-    )
-    fig_bar.update_layout(dragmode='pan')
-    st.plotly_chart(fig_bar, use_container_width=True, config={'displayModeBar': False, 'scrollZoom': True})
-
-with chart_tab2:
-    st.markdown(f"##### **[{selected_minor}]** 외부 충격에 따른 전년 대비 증감률(%) 추이 비교")
-    fig_line = px.line(
-        combined_df,
-        x='연도',
-        y='증감률(%)',
-        color='경영형태',
-        markers=True,
-        template='plotly_white',
-        color_discrete_sequence=['#1e3a8a', '#e11d48'] # 법인은 네이비, 개인은 경고의 의미로 레드 계열 매칭
-    )
-    # 0% 기준선 추가하여 가독성 증대
-    fig_line.add_hline(y=0.0, line_dash="dash", line_color="gray")
-    fig_line.update_layout(dragmode='pan')
-    st.plotly_chart(fig_line, use_container_width=True, config={'displayModeBar': False, 'scrollZoom': True})
+st.markdown(f"##### 📊 **[{selected_minor}]** 법인 vs 개인 연도별 창업 기업 수 비교")
+fig_bar = px.bar(
+    combined_df,
+    x='연도',
+    y='창업기업수',
+    color='경영형태',
+    barmode='group',
+    template='plotly_white',
+    color_discrete_sequence=['#1e3a8a', '#94a3b8'] # 다크네이비와 실버그레이 매칭
+)
+fig_bar.update_layout(dragmode='pan')
+st.plotly_chart(fig_bar, use_container_width=True, config={'displayModeBar': False, 'scrollZoom': True})
 
 st.markdown("---")
 
 # =========================================================================
-# 9. 알고리즘 기반 경영학적 리스크 리포트 (학생 탐구 핵심 섹션)
+# 9. 다듬어진 경영학적 리스크 리포트 (고등학생 수준에 맞춰 쉽고 명확하게 수정)
 # =========================================================================
-st.markdown(f"### 📝 **{selected_minor}** 업종의 경영 구조적 리스크 관리 진단서")
+st.markdown(f"### 📝 **{selected_minor}** 업종의 형태별 경영 리스크 진단 결과")
 
-# 경영학적 해석 자동화 분기문
-if corp_shock_2020 > priv_shock_2020:
-    st.success("🛡️ 경영학적 실증: 법인 구조의 '위기 완충(Buffer) 효과' 확인")
+# 격차가 0보다 클 때 (법인이 더 잘 버텼을 때)
+if defense_gap > 0:
+    st.success("🛡️ 경영학적 발견: 법인 구조가 가진 '위기 방어 완충 효과'를 확인했습니다.")
     st.markdown(f"""
     <div class="compare-card">
-        <p style="color:#334155; line-height:1.7;">
-            2020년 팬데믹 쇼크 당시, <b>법인 창업({corp_shock_2020}%)</b>이 <b>개인 창업({priv_shock_2020}%)</b>에 비해 
-            <b>{defense_gap}%p만큼 충격을 덜 받았거나 더 빠르게 방어</b>해 냈습니다. 이는 경영학 및 회계학적으로 매우 의미 있는 구조적 차이를 증명합니다.
+        <p style="color:#334155; line-height:1.8; font-size:16px;">
+            2020년 코로나19 경제 충격 당시, <b>법인 창업 변동률({corp_shock_2020}%)</b>이 <b>개인 창업 변동률({priv_shock_2020}%)</b>보다 
+            <b>{defense_gap}%p만큼 충격을 덜 받았거나 더 빠르게 회복</b>했습니다. 이는 회사의 경영 구조가 위기를 막아주는 방패 역할을 했음을 보여줍니다.
         </p>
         <div class="insight-box">
-            <b>💡 세부 경영학적 분석 및 학종 탐구 가이드:</b>
-            <ul style="color:#475569; margin-top:5px; padding-left:20px; line-height:1.6;">
-                <li><b>유한책임(Limited Liability)의 장벽 완화:</b> 법인 창업자는 출자 자본 한도 내에서만 책임을 지므로, 거시경제적 불확실성이 극대화된 시기에도 개인 자산 전체를 담보로 잡아야 하는 개인 창업자에 비해 리스크 테이킹(Risk-taking) 장벽이 낮습니다.</li>
-                <li><b>자본 조달(Capital Sourcing)의 다양성:</b> 법인은 주식 발행, 회사채, 기관 투자 유치 및 정부의 중소기업 정책자금(융자) 지원을 받기가 개인 사업자보다 훨씬 유리합니다. 대격변기에 확보된 이러한 자금력이 비상 운전자본(Cash Buffer) 역할을 하여 창업 진입 유인을 유지시켰을 가능성이 높습니다.</li>
+            <h4 style="margin-top:0; color:#0f172a;">💡 세부 경영학 분석 및 생기부 탐구 가이드</h4>
+            <ul style="color:#475569; margin-top:5px; padding-left:20px; line-height:1.7;">
+                <li><b>1. 유한책임(Limited Liability) 제도의 효과:</b> 법인은 개인이 낸 자본금 안에서만 책임을 지면 됩니다. 반면 개인 창업자는 위기가 오면 자신의 전 재산을 잃을 위험이 있습니다. 따라서 경제가 불안할 때 법인 형태가 창업자들에게 두려움을 낮춰주는 안전장치가 됩니다.</li>
+                <li><b>2. 다양한 자본 조달(Capital Sourcing) 능력:</b> 법인은 주식을 발행하거나 투자를 유치하고, 정부의 법인 대상 지원금을 받기가 개인 사업자보다 훨씬 유리합니다. 이렇게 모아둔 돈이 위기 상황에서 버틸 수 있는 <b>비상 운전자본(Cash Buffer)</b> 역할을 하여 창업을 무사히 시작할 수 있도록 도왔습니다.</li>
             </ul>
         </div>
     </div>
     """, unsafe_allow_html=True)
 
-elif corp_shock_2020 < priv_shock_2020:
-    st.warning("⚠️ 역발상 현상: 위기 상황 속 '개인 창업의 기동성 및 생계형 창업' 집중")
-    st.markdown(f"""
-    <div class="compare-card">
-        <p style="color:#334155; line-height:1.7;">
-            일반적인 예상과 달리 2020년 쇼크기에 <b>개인 창업의 방어력({priv_shock_2020}%)</b>이 <b>법인 창업({corp_shock_2020}%)</b>보다 우세했습니다. 
-            이는 해당 업종의 특성과 거시경제 충격이 맞물려 나타난 독특한 경영학적 현상입니다.
-        </p>
-        <div class="insight-box">
-            <b>💡 세부 경영학적 분석 및 학종 탐구 가이드:</b>
-            <ul style="color:#475569; margin-top:5px; padding-left:20px; line-height:1.6;">
-                <li><b>생계형 창업 및 의사결정의 신속성:</b> 고용 시장이 위축되면서 대안으로 선택하는 '생계형 개인 창업'이 급증했을 수 있습니다. 또한, 법인은 이사회 및 주주총회 등 복잡한 설립 프로세스가 필요한 반면, 개인은 경영자의 단독 결단으로 시장 진입과 철수가 매우 신속(Agility)하기 때문에 나타난 결과일 수 있습니다.</li>
-                <li><b>소규모 자본의 기회 포착:</b> 대규모 고정비(임차료, 대규모 인건비)가 들어가는 법인 모델과 달리, 최소 자본과 비대면 플랫폼을 활용한 소규모 개인 창업이 위기 속 틈새시장을 더 빠르게 공략했을 가능성이 있습니다.</li>
-            </ul>
-        </div>
-    </div>
-    """, unsafe_allow_html=True)
-
+# 격차가 0보다 작을 때 (개인이 더 잘 버텼을 때)
 else:
-    st.info("📊 균형 현상: 경영 구조와 무관한 산업 전반의 시스템적 리스크(Systemic Risk)")
+    st.warning("⚠️ 역발상 현상: 위기 속에서 오히려 '개인 창업의 신속함과 생계형 창업'이 돋보였습니다.")
     st.markdown(f"""
     <div class="compare-card">
-        <p style="color:#334155; line-height:1.7;">
-            법인과 개인 창업 모두 동일한 수준의 충격을 받았습니다. 이는 경영 형태나 지배구조의 차이로 극복할 수 없는 
-            <b>산업 전체의 강력한 시스템적 리스크(Systemic Risk)</b>가 작용했음을 시사합니다.
+        <p style="color:#334155; line-height:1.8; font-size:16px;">
+            예상과 달리, 2020년 위기 속에서 <b>개인 창업 변동률({priv_shock_2020}%)</b>이 <b>법인 창업 변동률({corp_shock_2020}%)</b>보다 
+            <b>{abs(defense_gap)}%p만큼 더 잘 버텼습니다.</b> 이는 업종 특성에 따라 개인 창업만의 독특한 생존 방식이 작용했음을 뜻합니다.
         </p>
+        <div class="insight-box">
+            <h4 style="margin-top:0; color:#0f172a;">💡 세부 경영학 분석 및 생기부 탐구 가이드</h4>
+            <ul style="color:#475569; margin-top:5px; padding-left:20px; line-height:1.7;">
+                <li><b>1. 빠른 의사결정과 기동성(Agility):</b> 법인은 이사회나 주주총회처럼 복잡한 절차가 필요하지만, 개인 창업은 사장님의 결단으로 시장 진입과 정리가 매우 빠릅니다. 비대면 트렌드 등 변화하는 시장에 신속하게 적응한 결과일 수 있습니다.</li>
+                <li><b>2. 구조조정으로 인한 생계형 창업:</b> 코로나19로 고용 시장이 얼어붙으면서, 생계를 위해 어쩔 수 없이 소자본으로 시작하는 '생계형 개인 창업'이 일시적으로 늘어나 지표가 방어된 현상일 수 있습니다.</li>
+            </ul>
+        </div>
     </div>
     """, unsafe_allow_html=True)
 
