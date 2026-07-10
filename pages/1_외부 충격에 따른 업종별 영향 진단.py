@@ -153,7 +153,7 @@ fig1.add_vrect(
     annotation_position="top left",    # 문구 위치
 
     annotation_font=dict(size=12, color="#c2410c", weight="bold") # 텍스트 스타일
-
+)
     
 
 # 마우스 마찰 시 기본 동작을 '드래그 이동(pan)'으로 설정하고 마우스 휠 줌 활성화
