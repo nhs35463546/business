@@ -158,7 +158,7 @@ fig_bar = px.bar(
     color_discrete_sequence=['#1e3a8a', '#94a3b8'] # 다크네이비와 실버그레이 매칭
 )
 fig_bar.update_layout(dragmode='pan')
-st.plotly_chart(fig_bar, use_container_width=True, config={'displayModeBar': False, 'scrollZoom': True})
+st.plotly_chart(fig_bar, width='stretch', config={'displayModeBar': False, 'scrollZoom': True})
 
 st.markdown("---")
 
